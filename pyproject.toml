@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "routemate-mcp"
+version = "0.1.0"
+description = "RouteMate MCP 智能出行助手：基于 LangGraph 与 MCP 的可扩展工具调用示例"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "RouteMate Contributors" }]
+keywords = ["mcp", "langgraph", "agent", "fastapi", "qwen"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+  "dashscope>=1.20,<2",
+  "fastapi>=0.115,<1",
+  "httpx>=0.27,<1",
+  "langchain>=0.3,<2",
+  "langchain-community>=0.3,<2",
+  "langchain-mcp-adapters>=0.1,<1",
+  "langgraph>=0.2.60,<2",
+  "mcp>=1.6,<2",
+  "pydantic>=2.8,<3",
+  "python-dotenv>=1.0,<2",
+  "uvicorn[standard]>=0.30,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<9",
+]
+
+[project.scripts]
+routemate = "routemate.cli:main"
+routemate-api = "routemate.api:run"
+routemate-once = "routemate.once:main"
+routemate-weather-mcp = "routemate.mcp_servers.weather_server:main"
+routemate-file-mcp = "routemate.mcp_servers.file_server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/routemate"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["src"]
+

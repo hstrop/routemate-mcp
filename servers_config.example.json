@@ -1,0 +1,41 @@
+{
+  "weather": {
+    "enabled": true,
+    "transport": "stdio",
+    "command": "python",
+    "args": [
+      "-m",
+      "routemate.mcp_servers.weather_server"
+    ]
+  },
+  "safe_file": {
+    "enabled": true,
+    "transport": "stdio",
+    "command": "python",
+    "args": [
+      "-m",
+      "routemate.mcp_servers.file_server",
+      "--output-dir",
+      "${ROUTEMATE_OUTPUT_DIR}"
+    ]
+  },
+  "amap_sse": {
+    "enabled": false,
+    "optional": true,
+    "transport": "sse",
+    "url": "${AMAP_MCP_SSE_URL}",
+    "headers": {
+      "Authorization": "Bearer ${AMAP_MCP_TOKEN}"
+    }
+  },
+  "amap_streamable": {
+    "enabled": false,
+    "optional": true,
+    "transport": "streamable_http",
+    "url": "${AMAP_MCP_STREAMABLE_URL}",
+    "headers": {
+      "Authorization": "Bearer ${AMAP_MCP_TOKEN}"
+    }
+  }
+}
+
