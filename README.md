@@ -72,6 +72,8 @@ routemate-mcp/
 │  └─ mcp_servers/
 │     ├─ weather_server.py     # 天气 STDIO MCP Server
 │     └─ file_server.py        # 文件 STDIO MCP Server
+├─ src/routemate/static/       # 零构建 Web 对话工作台
+├─ run_demo.ps1                # Windows 一键启动离线页面
 ├─ tests/                      # 配置、沙箱、Agent、API 测试
 ├─ servers_config.example.json # 本地及可选远程 MCP 模板
 ├─ .env.example
