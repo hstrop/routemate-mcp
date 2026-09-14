@@ -27,6 +27,10 @@ _FILE_PATTERN = re.compile(
     r"([^\s‘’'\"]+\.(?:txt|md|json))",
     flags=re.IGNORECASE,
 )
+_ROUTE_PATTERN = re.compile(
+    r"(?:从|由)?\s*([\u4e00-\u9fff]{2,8})\s*(?:到|去|前往|→|->)\s*"
+    r"([\u4e00-\u9fff]{2,8}?)(?=怎么走|路线|导航|$|[？?])"
+)
 
 
 @dataclass(slots=True)
@@ -37,6 +41,8 @@ class _ThreadState:
 
 def _extract_city(message: str) -> str | None:
     lowered = message.casefold()
+    if not any(marker in lowered for marker in ("天气", "weather", "温度", "气温")):
+        return None
     for alias, canonical in _CITY_ALIASES.items():
         if alias in lowered:
             return canonical
@@ -110,9 +116,31 @@ class OfflineTravelAgent:
             return AgentReply(weather_text, "offline", thread_id, tuple(traces))
 
         if any(marker in message for marker in ("导航", "路线", "怎么走")):
+            route = _ROUTE_PATTERN.search(message)
+            if route:
+                origin, destination = route.groups()
+                result = (
+                    f"{origin} → {destination}：离线路线演示约 137 公里，"
+                    "驾车约 1 小时 51 分钟；实际路线请以在线地图为准。"
+                )
+                traces.append(
+                    ToolTrace(
+                        name="plan_route_demo",
+                        arguments={"origin": origin, "destination": destination},
+                        result=result,
+                    )
+                )
+                return AgentReply(result, "offline", thread_id, tuple(traces))
             answer = (
                 "当前是无密钥离线演示，未连接高德地图 MCP，不能返回实时路线。"
                 "请配置并启用 servers_config.example.json 中的一种高德远程传输后切换到在线模式。"
+            )
+            return AgentReply(answer, "offline", thread_id)
+
+        if any(marker in message for marker in ("行程", "旅行", "出行建议", "带什么", "攻略")):
+            answer = (
+                "可以按“天气 → 交通 → 行程笔记”来规划：先查询目的地天气，"
+                "再确认出发时间和交通方式，最后让我把结果保存为 Markdown 行程单。"
             )
             return AgentReply(answer, "offline", thread_id)
 
@@ -121,4 +149,3 @@ class OfflineTravelAgent:
             "或“查询上海天气并保存到 行程/上海天气.md”。"
         )
         return AgentReply(answer, "offline", thread_id)
-

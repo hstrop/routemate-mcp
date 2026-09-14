@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .agent import RouteMateAgent
@@ -50,6 +53,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
 
+    static_dir = Path(__file__).parent / "static"
+    assets_dir = static_dir / "assets"
+    application.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @application.get("/", include_in_schema=False)
+    async def frontend() -> FileResponse:
+        return FileResponse(static_dir / "index.html")
+
+    @application.get("/meta")
+    async def meta() -> dict[str, object]:
+        return {
+            "name": "RouteMate",
+            "description": "MCP 多工具智能出行助手",
+            "mode": selected_settings.effective_mode,
+            "tools": ["天气查询", "安全文件写入", "路线规划（在线可选）"],
+            "transports": ["STDIO", "SSE（在线配置）"],
+        }
+
     @application.get("/health")
     async def health() -> dict:
         return {"status": "ok", "mode": selected_settings.effective_mode}
@@ -92,4 +113,3 @@ def run() -> None:
         port=settings.port,
         reload=False,
     )
-

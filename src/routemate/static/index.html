@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#081a2f" />
+    <title>RouteMate · 智能出行助手</title>
+    <link rel="stylesheet" href="/assets/app.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="nav">
+        <a class="brand" href="/"><span class="brand-icon">⌁</span><span><b>RouteMate</b><small>MCP TRAVEL COPILOT</small></span></a>
+        <div class="nav-right"><span class="mode-chip" id="mode-chip"><i></i>连接中</span><a href="/docs" target="_blank" rel="noreferrer">开发者 API ↗</a></div>
+      </header>
+      <main>
+        <section class="hero">
+          <div><p class="kicker">MULTI-TOOL TRAVEL AGENT</p><h1>计划下一站，<span>交给 Agent。</span></h1><p class="lead">RouteMate 把天气、文件与路线工具接进同一条 ReAct 对话链。每一步调用都可见，离线也能完整体验。</p><div class="hero-points"><span><b>01</b>理解需求</span><span><b>02</b>调用工具</span><span><b>03</b>汇总行程</span></div></div>
+          <div class="map-art" aria-hidden="true"><div class="map-grid"></div><div class="route-line"><i></i><i></i></div><div class="pin pin-start">出发</div><div class="pin pin-end">目的地</div><div class="map-label">MCP ROUTE</div></div>
+        </section>
+        <section class="content-grid">
+          <aside class="side">
+            <div class="card status-card"><div class="card-title"><span>Agent 状态</span><button id="refresh" title="刷新">↻</button></div><div class="online"><i id="health-dot"></i><strong id="health-text">检测中</strong><small id="health-mode">—</small></div><div class="mini-stats"><div><b>3</b><span>入口</span></div><div><b>2</b><span>本地工具</span></div><div><b>1</b><span>会话</span></div></div></div>
+            <div class="card tools-card"><div class="card-title"><span>已连接工具</span><span class="tiny-label">MCP</span></div><div class="tool-item"><span class="tool-symbol sun">☼</span><div><b>Weather Demo</b><small>天气查询 · STDIO</small></div><i class="check">✓</i></div><div class="tool-item"><span class="tool-symbol file">□</span><div><b>File Sandbox</b><small>安全写入 · STDIO</small></div><i class="check">✓</i></div><div class="tool-item muted-tool"><span class="tool-symbol map">⌖</span><div><b>Map Routing</b><small>高德路线 · 在线可选</small></div><i>○</i></div></div>
+            <div class="card prompt-card"><div class="card-title"><span>快捷指令</span></div><button class="prompt" data-prompt="查询广州天气">查询广州天气 <span>→</span></button><button class="prompt" data-prompt="查询杭州天气并保存到 行程/杭州.md">查天气并保存为文件 <span>→</span></button><button class="prompt" data-prompt="从广州到深圳怎么走？">规划广州到深圳路线 <span>→</span></button></div>
+          </aside>
+          <section class="chat card">
+            <div class="chat-top"><div><p class="kicker">REACT CONVERSATION</p><h2>出行对话</h2></div><div class="thread"><span>THREAD</span><code id="thread-id">demo-user</code></div></div>
+            <div class="messages" id="messages"><div class="msg assistant"><div class="agent-avatar">R</div><div class="msg-body"><span class="msg-name">RouteMate Agent</span><div class="bubble">你好！我是你的智能出行助手。可以帮你查天气、把结果保存成行程笔记，也能在配置在线地图工具后规划路线。<div class="bubble-hint">试试左侧快捷指令，或直接告诉我你的计划。</div></div></div></div></div>
+            <div class="thinking" id="thinking" hidden><span></span><span></span><span></span>Agent 正在思考并调用工具…</div>
+            <form class="input-wrap" id="chat-form"><textarea id="message" rows="1" placeholder="例如：查询深圳天气并保存到 行程/深圳.md"></textarea><button type="submit" aria-label="发送">↑</button></form><div class="input-foot"><span>Enter 发送 · Shift + Enter 换行</span><span>offline demo · 不伪装实时数据</span></div>
+          </section>
+        </section>
+      </main>
+      <footer><span>RouteMate / LangGraph + MCP</span><span>本地运行 · 工具轨迹可观测</span></footer>
+    </div>
+    <script src="/assets/app.js" defer></script>
+  </body>
+</html>
