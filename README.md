@@ -257,6 +257,15 @@ python -m pytest
 - 设计无密钥确定性演示路径，使天气查询到文件保存的核心流程可离线运行和自动化回归。
 - 为文件 MCP 增加目录边界、扩展名、内容大小及原子写入约束，并用 pytest 覆盖正常流程、路径穿越和会话隔离。
 
+## Container deployment
+
+```powershell
+docker build -t routemate-mcp .
+docker run --rm -p 8000:8000 -v routemate-output:/app/runtime_output routemate-mcp
+```
+
+The container starts the deterministic offline web demo. Online model and remote MCP services remain opt-in through environment configuration.
+
 ## License
 
 [MIT](LICENSE)
