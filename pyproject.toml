@@ -36,6 +36,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8.3,<9",
+  "ruff>=0.9,<1",
 ]
 
 [project.scripts]
@@ -52,4 +53,3 @@ packages = ["src/routemate"]
 addopts = "-q"
 testpaths = ["tests"]
 pythonpath = ["src"]
-
