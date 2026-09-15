@@ -72,8 +72,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         }
 
     @application.get("/health")
-    async def health() -> dict:
-        return {"status": "ok", "mode": selected_settings.effective_mode}
+    async def health(request: Request) -> dict[str, object]:
+        agent = getattr(request.app.state, "agent", None)
+        return {
+            "status": "ok",
+            "mode": selected_settings.effective_mode,
+            "started": bool(agent and agent._started),
+        }
+
+    @application.post("/v1/threads/{thread_id}/reset")
+    async def reset_thread(thread_id: str, request: Request) -> dict[str, object]:
+        try:
+            reset = await request.app.state.agent.reset_thread(thread_id)
+        except (RouteMateError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        if not reset:
+            raise HTTPException(status_code=409, detail="在线模式请创建新的 thread_id 以开始新会话")
+        return {"reset": True, "thread_id": thread_id, "mode": selected_settings.effective_mode}
 
     @application.post("/v1/chat", response_model=ChatResponse)
     async def chat(payload: ChatRequest, request: Request) -> ChatResponse:

@@ -1,9 +1,147 @@
 const $ = (s) => document.querySelector(s);
-const state = { busy: false, thread: localStorage.getItem("routemate-thread") || `demo-${Math.random().toString(36).slice(2, 8)}` };
-localStorage.setItem("routemate-thread", state.thread); $("#thread-id").textContent = state.thread;
-function node(tag, value, cls = "") { const el = document.createElement(tag); el.textContent = value; if (cls) el.className = cls; return el; }
-async function api(path, options = {}) { const response = await fetch(path, options); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.detail || `请求失败（${response.status}）`); return data; }
-async function refresh() { try { const data = await api("/health"); $("#health-dot").classList.add("ok"); $("#health-text").textContent = "服务正常"; $("#health-mode").textContent = data.mode || "offline"; $("#mode-chip").innerHTML = '<i class="ok"></i>本地 Agent 在线'; } catch (e) { $("#health-text").textContent = "服务不可用"; $("#mode-chip").innerHTML = '<i></i>连接失败'; } }
-function addMessage(role, answer, traces = []) { const row = document.createElement("div"); row.className = `msg ${role}`; row.appendChild(node("div", role === "assistant" ? "R" : "你", "agent-avatar")); const body = document.createElement("div"); body.className = "msg-body"; if (role === "assistant") body.appendChild(node("span", "RouteMate Agent", "msg-name")); const bubble = node("div", answer, "bubble"); if (traces.length) { const trace = document.createElement("div"); trace.className = "trace"; trace.appendChild(node("div", `⌁ 工具轨迹 · ${traces.length} 步`, "trace-title")); traces.forEach((item) => { const box = document.createElement("div"); box.className = "trace-item"; box.appendChild(node("b", item.name || "tool")); box.appendChild(node("p", `${item.result || "已完成"}`)); trace.appendChild(box); }); bubble.appendChild(trace); } body.appendChild(bubble); row.appendChild(body); $("#messages").appendChild(row); $("#messages").scrollTop = $("#messages").scrollHeight; }
-async function send(value) { const message = value.trim(); if (!message || state.busy) return; state.busy = true; $("#message").value = ""; $("#message").style.height = "auto"; addMessage("user", message); $("#thinking").hidden = false; try { const result = await api("/v1/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, thread_id: state.thread }) }); addMessage("assistant", result.answer, result.tool_calls || []); } catch (e) { addMessage("assistant", `这次请求没有完成：${e.message}`); } finally { $("#thinking").hidden = true; state.busy = false; } }
-$("#chat-form").addEventListener("submit", (e) => { e.preventDefault(); send($("#message").value); }); $("#message").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(e.target.value); } }); $("#message").addEventListener("input", (e) => { e.target.style.height = "auto"; e.target.style.height = `${Math.min(e.target.scrollHeight, 105)}px`; }); $("#refresh").addEventListener("click", refresh); document.querySelectorAll(".prompt").forEach((item) => item.addEventListener("click", () => { $("#message").value = item.dataset.prompt; send(item.dataset.prompt); })); refresh();
+const state = {
+  busy: false,
+  thread: localStorage.getItem("routemate-thread") || `demo-${Math.random().toString(36).slice(2, 8)}`,
+};
+
+localStorage.setItem("routemate-thread", state.thread);
+
+function node(tag, value, cls = "") {
+  const el = document.createElement(tag);
+  el.textContent = value;
+  if (cls) el.className = cls;
+  return el;
+}
+
+function setThreadLabel() {
+  $("#thread-id").textContent = state.thread;
+}
+
+async function api(path, options = {}) {
+  const response = await fetch(path, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.detail || `请求失败（${response.status}）`);
+  return data;
+}
+
+async function refresh() {
+  try {
+    const data = await api("/health");
+    $("#health-dot").classList.add("ok");
+    $("#health-text").textContent = data.started ? "服务正常" : "服务待启动";
+    $("#health-mode").textContent = data.mode || "offline";
+    $("#mode-chip").innerHTML = `<i class="${data.started ? "ok" : ""}"></i>${data.started ? "本地 Agent 在线" : "Agent 待启动"}`;
+  } catch (e) {
+    $("#health-dot").classList.remove("ok");
+    $("#health-text").textContent = "服务不可用";
+    $("#mode-chip").innerHTML = '<i></i>连接失败';
+  }
+}
+
+function addMessage(role, answer, traces = []) {
+  const row = document.createElement("div");
+  row.className = `msg ${role}`;
+  row.appendChild(node("div", role === "assistant" ? "R" : "你", "agent-avatar"));
+  const body = document.createElement("div");
+  body.className = "msg-body";
+  if (role === "assistant") body.appendChild(node("span", "RouteMate Agent", "msg-name"));
+  const bubble = node("div", answer, "bubble");
+  if (traces.length) {
+    const trace = document.createElement("div");
+    trace.className = "trace";
+    trace.appendChild(node("div", `⌁ 工具轨迹 · ${traces.length} 步`, "trace-title"));
+    traces.forEach((item) => {
+      const box = document.createElement("div");
+      box.className = "trace-item";
+      box.appendChild(node("b", item.name || "tool"));
+      box.appendChild(node("p", item.result || "已完成"));
+      if (item.arguments && Object.keys(item.arguments).length) {
+        box.appendChild(node("code", JSON.stringify(item.arguments), "trace-args"));
+      }
+      trace.appendChild(box);
+    });
+    bubble.appendChild(trace);
+  }
+  body.appendChild(bubble);
+  row.appendChild(body);
+  $("#messages").appendChild(row);
+  $("#messages").scrollTop = $("#messages").scrollHeight;
+}
+
+async function send(value) {
+  const message = value.trim();
+  if (!message || state.busy) return;
+  state.busy = true;
+  $("#message").value = "";
+  $("#message").style.height = "auto";
+  addMessage("user", message);
+  $("#thinking").hidden = false;
+  try {
+    const result = await api("/v1/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, thread_id: state.thread }),
+    });
+    addMessage("assistant", result.answer, result.tool_calls || []);
+  } catch (e) {
+    addMessage("assistant", `这次请求没有完成：${e.message}`);
+  } finally {
+    $("#thinking").hidden = true;
+    state.busy = false;
+  }
+}
+
+function resetMessages() {
+  $("#messages").innerHTML = "";
+  addMessage("assistant", "新会话已准备好。告诉我你的出行计划，我会把工具调用过程展示出来。", []);
+}
+
+async function newSession() {
+  if (state.busy) return;
+  const oldThread = state.thread;
+  try {
+    await api(`/v1/threads/${encodeURIComponent(oldThread)}/reset`, { method: "POST" });
+  } catch (e) {
+    // 在线模式通过新 thread_id 隔离上下文；这里无需阻断前端换会话。
+    if (!String(e.message).includes("在线模式")) addMessage("assistant", `旧会话未清理：${e.message}`);
+  }
+  state.thread = `demo-${Math.random().toString(36).slice(2, 8)}`;
+  localStorage.setItem("routemate-thread", state.thread);
+  setThreadLabel();
+  resetMessages();
+}
+
+function mountSessionAction() {
+  const host = $(".thread");
+  const button = document.createElement("button");
+  button.id = "new-session";
+  button.className = "new-session";
+  button.type = "button";
+  button.textContent = "＋ 新会话";
+  button.addEventListener("click", newSession);
+  host.appendChild(button);
+}
+
+$("#chat-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  send($("#message").value);
+});
+$("#message").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    send(e.target.value);
+  }
+});
+$("#message").addEventListener("input", (e) => {
+  e.target.style.height = "auto";
+  e.target.style.height = `${Math.min(e.target.scrollHeight, 105)}px`;
+});
+$("#refresh").addEventListener("click", refresh);
+document.querySelectorAll(".prompt").forEach((item) => item.addEventListener("click", () => {
+  $("#message").value = item.dataset.prompt;
+  send(item.dataset.prompt);
+}));
+
+setThreadLabel();
+mountSessionAction();
+refresh();

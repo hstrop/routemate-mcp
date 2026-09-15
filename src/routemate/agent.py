@@ -96,6 +96,17 @@ class RouteMateAgent:
                 await close_method()
         self._started = False
 
+    async def reset_thread(self, thread_id: str) -> bool:
+        """重置离线会话；在线模式建议直接换用新的 thread_id。"""
+        if not _THREAD_ID.fullmatch(thread_id):
+            raise ValueError("thread_id 仅允许字母、数字及 _ . : -，长度 1..64")
+        if self.mode != "offline":
+            return False
+        if not self._started:
+            await self.start()
+        assert self._offline is not None
+        return self._offline.reset_thread(thread_id)
+
     async def chat(self, message: str, thread_id: str = "default") -> AgentReply:
         cleaned_message = message.strip()
         if not cleaned_message:

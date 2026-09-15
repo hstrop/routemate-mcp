@@ -1,0 +1,30 @@
+.new-session {
+  display: block;
+  margin-top: 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--blue);
+  padding: 4px 8px;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.new-session:hover,
+.new-session:focus-visible {
+  border-color: var(--cyan);
+  color: var(--navy);
+}
+
+.trace-args {
+  display: block;
+  margin-top: 6px;
+  overflow: auto;
+  color: #6d8297;
+  font-size: 10px;
+  white-space: pre-wrap;
+}
+
+.trace-item {
+  overflow: hidden;
+}

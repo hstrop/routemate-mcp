@@ -69,6 +69,10 @@ class OfflineTravelAgent:
         self.output_dir = output_dir
         self._threads: dict[str, _ThreadState] = {}
 
+    def reset_thread(self, thread_id: str) -> bool:
+        """删除一个离线会话，返回该会话是否存在。"""
+        return self._threads.pop(thread_id, None) is not None
+
     async def chat(self, message: str, thread_id: str) -> AgentReply:
         state = self._threads.setdefault(thread_id, _ThreadState())
         traces: list[ToolTrace] = []

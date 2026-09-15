@@ -4,6 +4,14 @@ RouteMate 是一个面向 Agent 入门实践的智能出行项目：使用 **Lan
 
 本仓库刻意保留了应届生项目合适的边界：实现一条完整、可运行、可测试的工具调用链路，但不宣称已经具备生产级鉴权、持久化记忆、监控或性能指标。
 
+## Global AI/LLM Internship Portfolio
+
+RouteMate is the agent-tooling project in my portfolio. It shows how a LangGraph ReAct agent can discover and call MCP tools through a stable application boundary, while an offline mode keeps the full user journey reproducible without credentials or network access.
+
+**Engineering signals:** Python · LangGraph · MCP · ReAct · FastAPI · tool traces · sandboxed file writes · session lifecycle · deterministic offline evaluation.
+
+**Verified locally:** 25 automated tests pass, including configuration, sandbox safety, tool routing, API validation, health state, and thread reset behavior. Online model and remote map integrations remain explicit optional adapters.
+
 ## 功能概览
 
 - `MultiServerMCPClient` 聚合多台 MCP Server 的工具，Agent 侧不依赖具体服务实现。
