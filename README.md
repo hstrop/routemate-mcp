@@ -1,5 +1,7 @@
 # RouteMate MCP 智能出行助手
 
+[![CI](https://github.com/hstrop/routemate-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/hstrop/routemate-mcp/actions/workflows/ci.yml)
+
 RouteMate 是一个面向 Agent 入门实践的智能出行项目：使用 **LangGraph ReAct** 组织“思考 → 调用工具 → 观察 → 回复”循环，通过 **MCP** 把天气查询、安全文件写入和可选地图服务接入同一个 Agent。项目提供交互式 CLI、FastAPI HTTP API 与单次命令三种入口。
 
 本仓库刻意保留了应届生项目合适的边界：实现一条完整、可运行、可测试的工具调用链路，但不宣称已经具备生产级鉴权、持久化记忆、监控或性能指标。
